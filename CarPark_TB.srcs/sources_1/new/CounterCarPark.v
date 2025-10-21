@@ -9,6 +9,10 @@ module CounterCarPark #(
 );
     localparam MAX = (1<<WIDTH)-1;
     
+    initial begin 
+        count = 0;
+    end
+    
     always @(posedge clk) begin
         if (reset) begin
             count <= {WIDTH{1'b0}};

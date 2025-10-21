@@ -1,5 +1,58 @@
 `timescale 1ns / 1ps
 
+// Top-Level Self-Checking Testbench for Carpark FSM
+module TbTopCarPark;
+
+    localparam WIDTH = 4;
+
+    // DUT signals
+    wire clk;
+    wire reset;
+    wire a, b;
+    wire exp_enter, exp_exit;
+    wire dut_enter, dut_exit;
+    wire [WIDTH -1 : 0] exp_led;
+    wire [WIDTH -1 : 0] dut_led;
+
+    // Instantiate Stimulus Generator
+    StimGen #(.WIDTH(WIDTH)) stimGen (
+        .clk(clk),
+        .reset(reset),
+        .a(a),
+        .b(b),
+        .exp_enter(exp_enter),
+        .exp_exit (exp_exit),
+        .exp_led  (exp_led)
+    );
+
+    // Instantiate DUT (Carpark FSM + Counter)
+    TopCarPark #(.WIDTH(WIDTH)) dut (
+        .clk   (clk),
+        .reset (reset),
+        .a     (a),
+        .b     (b),
+        .enter (dut_enter),
+        .exit  (dut_exit),
+        .leds  (dut_led)
+    );
+
+
+    // Instantiate Scoreboard
+    Scoreboard #(.WIDTH(WIDTH)) scoreboard (
+        .clk(clk),
+        .reset(reset),
+        .dut_enter(dut_enter),
+        .dut_exit(dut_exit),
+        .exp_enter(exp_enter),
+        .exp_exit(exp_exit),
+        .dut_led (dut_led),
+        .exp_led (exp_led)
+    );
+
+endmodule
+
+
+/*
 module top_tb;
 
     localparam WIDTH = 4;
@@ -74,3 +127,4 @@ module top_tb;
     end
 
 endmodule
+*/

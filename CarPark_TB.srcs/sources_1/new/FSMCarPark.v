@@ -1,6 +1,6 @@
 module FsmCarPark (
     input  wire clk,    // Clock signal
-    input  wire rst,    // Synchronous active hight reset signal
+    input  wire reset,  // Synchronous active hight reset signal
     input  wire a,      // Input bit a to compare against the pattern
     input  wire b,      // Input bit b to compare against the pattern
     output reg  ENTER,  // Output signal indicating if Car has Entered
@@ -15,13 +15,19 @@ module FsmCarPark (
     localparam TA       = 4'd5;
     localparam TB       = 4'd6;
     localparam TC       = 4'd7;
-    localparam TEXIT    = 4'd8; // enter EXIT, same as S
+    localparam TEXIT    = 4'd8; // resgister EXIT, same as S
 
     reg [3:0] current_state, next_state;
+    
+    initial begin 
+        ENTER = 0;
+        EXIT = 0;
+    end
+    
 
     // Sequential logic - state register
     always @(posedge clk) begin
-        if (rst) begin
+        if (reset) begin
             current_state <= S;
         end
         else begin
@@ -34,7 +40,7 @@ module FsmCarPark (
         case (current_state)
 
             S, SENTER, TEXIT: begin
-                case ({a, b})
+                case ({b, a})
                     2'b01:   next_state = SA;
                     2'b10:   next_state = TA;
                     default: next_state = S;
@@ -42,7 +48,7 @@ module FsmCarPark (
             end
 
             SA: begin
-                case ({a, b})
+                case ({b, a})
                     2'b01:   next_state = SA;
                     2'b11:   next_state = SB;
                     default: next_state = S;
@@ -50,7 +56,7 @@ module FsmCarPark (
             end
 
             SB: begin
-                case ({a, b})
+                case ({b, a})
                     2'b11:   next_state = SB;
                     2'b10:   next_state = SC;
                     default: next_state = S;
@@ -58,7 +64,7 @@ module FsmCarPark (
             end
 
             SC: begin
-                case ({a, b})
+                case ({b, a})
                     2'b10:   next_state = SC;
                     2'b00:   next_state = SENTER;
                     default: next_state = S;
@@ -66,7 +72,7 @@ module FsmCarPark (
             end
 
             TA: begin
-                case ({a, b})
+                case ({b, a})
                     2'b10:   next_state = TA;
                     2'b11:   next_state = TB;
                     default: next_state = S;
@@ -74,7 +80,7 @@ module FsmCarPark (
             end
 
             TB: begin
-                case ({a, b})
+                case ({b, a})
                     2'b11:   next_state = TB;
                     2'b01:   next_state = TC;
                     default: next_state = S;
@@ -82,9 +88,9 @@ module FsmCarPark (
             end
 
             TC: begin
-                case ({a, b})
+                case ({b, a})
                     2'b01:   next_state = TC;
-                    2'b00:   next_state = SEXIT;
+                    2'b00:   next_state = TEXIT;
                     default: next_state = S;
                 endcase
             end
